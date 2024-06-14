@@ -16,6 +16,7 @@ from tenacity import (
     wait_random_exponential,
 )
 
+from core.config import Config
 from core.schema import Headline
 from core.scraper import scrape_headlines
 from helpers.llm_gateway_util import (
@@ -23,7 +24,7 @@ from helpers.llm_gateway_util import (
     append_cert_to_cacert,
     get_ssl_certificate,
 )
-from helpers.utils import save_as_json
+from helpers.utils import datetime_to_str, save_as_json
 
 load_dotenv()
 
@@ -155,15 +156,15 @@ def summarize():
 
     save_as_json(
         {
-            "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
+            "last_updated": datetime_to_str(datetime.now()),
             "model": model,
             "usage": completion.usage.to_dict(),
             "duration": total_duration_sec,
             "summaries": rich_responses,
         },
-        f"../tmp/summaries.json",
+        Config.SUMMARIES_FILE,
     )
-    logger.info("Summaries saved to tmp/summaries.json")
+    logger.info(f"Summaries saved to {Config.SUMMARIES_FILE}")
 
     return rich_responses
 

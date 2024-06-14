@@ -192,3 +192,4 @@ Temporary Items
 
 tmp/**
 chromedriver/*/
+data/**

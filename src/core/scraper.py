@@ -13,8 +13,9 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from tenacity import retry, stop_after_attempt
 
+from core.config import Config
 from core.schema import Headline, to_serializable
-from helpers.utils import load_json, save_as_json
+from helpers.utils import datetime_to_str, save_as_json
 
 
 def prettyprint_etree(element):
@@ -209,7 +210,7 @@ class BaseDriver:
         new_height = 1
         element = self.get_element_by_id(container_id)
         while new_height != last_height and n < scroll_times:
-            logger.info(f"Scroll {n + 1}\t{last_height}->{new_height}")
+            logger.info(f"Scroll {n}\t{last_height}->{new_height}")
             last_height = new_height
             if container_id:
                 self.driver.execute_script(
@@ -275,17 +276,19 @@ def scrape_headlines():
         headlines = driver.get_headlines()
     save_as_json(
         {
-            "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
+            "last_updated": datetime_to_str(datetime.now()),
             "headlines": [to_serializable(h) for h in headlines],
         },
-        f"../tmp/headlines.json",
+        Config.HEADLINES_FILE,
     )
-    logger.info(f"Scraped {len(headlines)} headlines. Saved to tmp/headlines.json.")
+    logger.info(
+        f"Scraped {len(headlines)} headlines. Saved to {Config.HEADLINES_FILE}."
+    )
     return headlines
 
 
 # def scrape_headlines():
-#     headlines = [Headline(**h) for h in load_json("../tmp/headlines.json")["headlines"]]
+#     headlines = [Headline(**h) for h in load_json("../data/headlines.json")["headlines"]]
 #     logger.info(f"Scraped {len(headlines)} headlines. Saved to tmp/headlines.json.")
 #     return headlines
 
