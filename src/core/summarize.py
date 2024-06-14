@@ -101,11 +101,13 @@ def enrich_response(response_content: str, headlines: list[Headline]):
         topic_headlines = [int(idx) for idx in details["headline_ids"]][:5]
         for i, headline_idx in enumerate(topic_headlines):
             selected = headlines[headline_idx]
-            summary_chunks.append(
-                f"{i + 1}\. [*{escape_markdown_v2(selected.title)}*]({selected.link}) \- _{escape_markdown_v2(selected.publisher)}_\n"
-            )
+            escaped_title = escape_markdown_v2(selected.title)
+            escaped_publisher = escape_markdown_v2(selected.publisher)
             escaped_summary = escape_markdown_v2(selected.summary).replace("\n", "\n> ")
-            summary_chunks.append(f">{escaped_summary}||\n\n")
+            summary_chunks.append(
+                f"{i + 1}\. [*{escaped_title}*]({selected.link}) \- _{escaped_publisher}_\n"
+                f">{escaped_summary}||\n\n"
+            )
         rich_responses.append(summary_chunks)
     return rich_responses
 
