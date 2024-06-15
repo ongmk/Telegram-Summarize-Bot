@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import datetime
 import os
 
@@ -107,10 +109,7 @@ async def unsubscribe_handler(
 
 
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    welcome_message = (
-        "歡迎使用香港日報 Bot！我每天會為您提供新聞摘要和相關連結。\n"
-        "Welcome to the daily_hk_news_bot! I'll provide you with daily news summaries and relevant links."
-    )
+    welcome_message = "歡迎使用香港日報 Bot！我每天會為您提供新聞摘要和相關連結。"
     await update.message.reply_text(
         welcome_message,
     )
@@ -121,11 +120,11 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = str(update.effective_message.chat_id)
     if is_subscriber(chat_id):
-        message = "You are subscribed."
-        buttons = [["/unsubscribe"]]
+        message = "您已訂閱"
+        buttons = [["/unsubscribe 取消訂閱"]]
     else:
-        message = "You are not subscribed."
-        buttons = [["/subscribe"]]
+        message = "您還未訂閱"
+        buttons = [["/subscribe 訂閱"]]
     await update.message.reply_text(
         message,
         reply_markup=ReplyKeyboardMarkup(

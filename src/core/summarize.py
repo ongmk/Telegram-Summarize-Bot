@@ -68,18 +68,19 @@ def get_user_prompt(headlines: list[Headline]):
     return f"""<headlines>
 {headlines_string}
 </headlines>
-Given the above indices and headlines, find the five most popular topics/ keywords.
+Given the above indices and headlines, find the five most popular topics/keywords.
 For each topic/keyword, provide a short summary and the indices of the headlines that are related to it.
 Answer in the following format:
 [
     "Topic/Keyword": {{
         "summary": "A short summary of the topic/keyword.",
-        "headline_ids": [0, 1, 2, 3, 4],
+        "headline_ids": [0,2,3,...],
     }},
     "Topic/Keyword": {{
         "summary": "A short summary of the topic/keyword.",
-        "headline_ids": [5,2,3,4],
+        "headline_ids": [5,10,11,...],
     }},
+    ...
 ]
 """
 
@@ -98,7 +99,7 @@ def enrich_response(response_content: str, headlines: list[Headline]):
         summary_chunks.append(
             f"*{escape_markdown_v2(details['summary'])}*\n{escape_markdown_v2('-'*50)}\n"
         )
-        topic_headlines = [int(idx) for idx in details["headline_ids"]][:5]
+        topic_headlines = sorted([int(idx) for idx in details["headline_ids"]])[:5]
         for i, headline_idx in enumerate(topic_headlines):
             selected = headlines[headline_idx]
             escaped_title = escape_markdown_v2(selected.title)
