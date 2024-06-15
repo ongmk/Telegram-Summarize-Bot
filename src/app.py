@@ -20,7 +20,10 @@ load_dotenv()
 
 
 async def send_news_to_chat(
-    chat_id: str, context: ContextTypes.DEFAULT_TYPE, last_sent="1900-01-01 00:00:00"
+    chat_id: str,
+    context: ContextTypes.DEFAULT_TYPE,
+    last_sent="1900-01-01 00:00:00",
+    by_chunks=False,
 ) -> None:
     summaries = load_json(Config.SUMMARIES_FILE)
     last_sent = str_to_datetime(last_sent)
@@ -35,18 +38,22 @@ async def send_news_to_chat(
     if last_sent > last_updated:
         await context.bot.send_message(
             Config.ADMIN_CHAT_ID,
-            f"No new news for {chat_id}. {last_sent=}, {last_updated=}",
+            f"[Warning] No new news for {chat_id}. {last_sent=}, {last_updated=}",
         )
         return None
-
     for chunks in summaries:
-        text = chunks[0]
-        topic_message = await context.bot.send_message(
-            chat_id, text, parse_mode="MarkdownV2", disable_web_page_preview=True
-        )
-        for chunk in chunks[1:]:
-            text += chunk
-            await topic_message.edit_text(text, parse_mode="MarkdownV2")
+        if by_chunks:
+            text = chunks[0]
+            topic_message = await context.bot.send_message(
+                chat_id, text, parse_mode="MarkdownV2"
+            )
+            for chunk in chunks[1:]:
+                text += chunk
+                await topic_message.edit_text(text, parse_mode="MarkdownV2")
+        else:
+            text = "".join(chunks)
+            await context.bot.send_message(chat_id, text, parse_mode="MarkdownV2")
+
     subscribers = load_json(Config.SUBSCRIBER_FILE)
     subscribers[chat_id] = datetime_to_str(datetime.datetime.now())
     save_as_json(subscribers, Config.SUBSCRIBER_FILE)
@@ -85,7 +92,7 @@ async def subscribe_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) 
         return
     subscribe(chat_id)
     await update.effective_message.reply_text("Subscribed.")
-    await send_news_to_chat(chat_id, context)
+    await send_news_to_chat(chat_id, context, by_chunks=True)
     return
 
 
@@ -104,13 +111,27 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "歡迎使用香港日報 Bot！我每天會為您提供新聞摘要和相關連結。\n"
         "Welcome to the daily_hk_news_bot! I'll provide you with daily news summaries and relevant links."
     )
-    chat_id = str(update.effective_message.chat_id)
-    buttons = [["/unsubscribe"]] if is_subscriber(chat_id) else [["/subscribe"]]
     await update.message.reply_text(
         welcome_message,
+    )
+    await help_handler(update, context)
+    return None
+
+
+async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = str(update.effective_message.chat_id)
+    if is_subscriber(chat_id):
+        message = "You are subscribed."
+        buttons = [["/unsubscribe"]]
+    else:
+        message = "You are not subscribed."
+        buttons = [["/subscribe"]]
+    await update.message.reply_text(
+        message,
         reply_markup=ReplyKeyboardMarkup(
             buttons,
             one_time_keyboard=True,
+            resize_keyboard=True,
         ),
     )
     return None
@@ -141,7 +162,8 @@ def main():
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
-    application.add_handler(CommandHandler(["start", "help"], start_handler))
+    application.add_handler(CommandHandler("start", start_handler))
+    application.add_handler(CommandHandler("help", help_handler))
     application.add_handler(CommandHandler("subscribe", subscribe_handler))
     application.add_handler(CommandHandler("unsubscribe", unsubscribe_handler))
     application.add_error_handler(error_handler)

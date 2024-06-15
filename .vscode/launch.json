@@ -16,5 +16,17 @@
             "justMyCode": false,
             "console": "integratedTerminal",
         },
+        {
+            "name": "Start Bot",
+            "type": "python",
+            "request": "launch",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+            },
+            "cwd": "${workspaceFolder}/src",
+            "program": "app.py",
+            "justMyCode": false,
+            "console": "integratedTerminal",
+        },
     ]
 }
