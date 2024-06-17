@@ -21,6 +21,12 @@ from helpers.utils import (
 load_dotenv()
 
 
+async def warn(text: str, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.bot.send_message(Config.ADMIN_CHAT_ID, f"[Warning] {text}")
+    logger.warning(text)
+    return None
+
+
 async def send_news_to_chat(
     chat_id: str,
     context: ContextTypes.DEFAULT_TYPE,
@@ -33,15 +39,10 @@ async def send_news_to_chat(
     summaries = summaries["summaries"]
 
     if not summaries:
-        await context.bot.send_message(
-            Config.ADMIN_CHAT_ID, "[ADMIN] Cannot find headlines to summarize."
-        )
+        warn("Cannot find headlines to summarize.")
         return None
     if last_sent > last_updated:
-        await context.bot.send_message(
-            Config.ADMIN_CHAT_ID,
-            f"[Warning] No new news for {chat_id}. {last_sent=}, {last_updated=}",
-        )
+        warn(f"No new news for {chat_id}. {last_sent=}, {last_updated=}")
         return None
     for chunks in summaries:
         if by_chunks:
@@ -141,6 +142,11 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"{type(context.error).__name__}: {context.error}")
 
 
+async def summarize_handler(context: ContextTypes.DEFAULT_TYPE):
+    summarize()
+    return None
+
+
 def schedule_jobs(application: Application) -> None:
     for time in Config.SEND_SCHEDULE:
         application.job_queue.run_daily(
@@ -150,7 +156,7 @@ def schedule_jobs(application: Application) -> None:
         logger.info(f"News sending scheduled at {time}.")
     for time in Config.SUMMARIZE_SCHEDULE:
         application.job_queue.run_daily(
-            summarize,
+            summarize_handler,
             time,
         )
         logger.info(f"Summarization scheduled at {time}.")
