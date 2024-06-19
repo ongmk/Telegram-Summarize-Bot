@@ -204,7 +204,7 @@ class BaseDriver:
             content.append(td)
         return pd.DataFrame(content, columns=columns)
 
-    def inifinte_scroll(self, scroll_times=999, container_id=None):
+    def infinite_scroll(self, scroll_times=999, container_id=None):
         n = 0
         last_height = 0
         new_height = 1
@@ -245,7 +245,7 @@ class YahooNewsDriver(BaseDriver):
 
     def get_headlines(self, category="hong-kong"):
         self.get(f"{self.base_url}/{category}")
-        self.inifinte_scroll(container_id="YDC-Stream")
+        self.infinite_scroll(scroll_times=5, container_id="YDC-Stream")
 
         tree = self.get_tree_by_id("YDC-Stream")
         elements = tree.xpath(
