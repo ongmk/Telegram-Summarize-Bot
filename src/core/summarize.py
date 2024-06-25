@@ -68,7 +68,7 @@ def get_user_prompt(headlines: list[Headline]):
     return f"""<headlines>
 {headlines_string}
 </headlines>
-Given the above indices and headlines, find the five most popular topics/keywords.
+The above headlines are published by different sources, find the five most popular topics/keywords.
 For each topic/keyword, provide a short summary and the indices of the headlines that are related to it.
 Answer in the following format:
 [

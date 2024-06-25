@@ -287,8 +287,13 @@ def scrape_headlines():
     return headlines
 
 
+# from helpers.utils import load_json
+
+
 # def scrape_headlines():
-#     headlines = [Headline(**h) for h in load_json("../data/headlines.json")["headlines"]]
+#     headlines = [
+#         Headline(**h) for h in load_json("../data/headlines.json")["headlines"]
+#     ]
 #     logger.info(f"Scraped {len(headlines)} headlines. Saved to tmp/headlines.json.")
 #     return headlines
 
