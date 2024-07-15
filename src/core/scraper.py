@@ -209,9 +209,16 @@ class BaseDriver:
         last_height = 0
         new_height = 1
         element = self.get_element_by_id(container_id)
-        while new_height != last_height and n < scroll_times:
+        height_unchanged_times = 0
+        while height_unchanged_times < 3 and n < scroll_times + 1:
             logger.info(f"Scroll {n}\t{last_height}->{new_height}")
-            last_height = new_height
+            if new_height != last_height:
+                height_unchanged_times = 0
+                n += 1
+                last_height = new_height
+            else:
+                height_unchanged_times += 1
+                logger.warning("Height unchanged. Retry...")
             if container_id:
                 self.driver.execute_script(
                     "arguments[0].scrollIntoView(false);", element
@@ -226,7 +233,6 @@ class BaseDriver:
                 new_height = int(
                     self.driver.execute_script("return document.body.scrollHeight")
                 )
-            n += 1
         return None
 
 
@@ -243,13 +249,15 @@ class YahooNewsDriver(BaseDriver):
             return ""
         return text.strip()
 
-    def get_headlines(self, category="hong-kong"):
+    def get_headlines(self, category="archive"):
         self.get(f"{self.base_url}/{category}")
-        self.infinite_scroll(scroll_times=5, container_id="YDC-Stream")
+        self.infinite_scroll(
+            scroll_times=7, container_id="stream-container-scroll-template"
+        )
 
-        tree = self.get_tree_by_id("YDC-Stream")
+        tree = self.get_tree_by_id("stream-container-scroll-template")
         elements = tree.xpath(
-            "//ul/li/div[not(contains(@class, 'native-ad-item'))]/div/div[h3]"
+            "//li[not(contains(@class, 'StreamAd'))]/div/div/div/div[position() = (last() - 1)]"
         )
         headlines = []
         for e in elements:
@@ -258,10 +266,11 @@ class YahooNewsDriver(BaseDriver):
                 continue
             title = self.strip("".join(e.xpath("./h3")[0].itertext()))
             logger.info(title)
+            publisher, time = self.strip(e.xpath("./div")[0].text).split(" • ")
             headlines.append(
                 Headline(
-                    publisher=self.strip(e.xpath("./div/span[1]")[0].text),
-                    time=self.strip(e.xpath("./div/span[2]")[0].text),
+                    publisher=publisher,
+                    time=time,
                     title=title,
                     link=unquote(self.base_url + e.xpath("./h3/a")[0].get("href")),
                     summary=summary,
@@ -271,8 +280,8 @@ class YahooNewsDriver(BaseDriver):
         return headlines
 
 
-def scrape_headlines():
-    with YahooNewsDriver(headless=True) as driver:
+def scrape_headlines(headless=True):
+    with YahooNewsDriver(headless=headless) as driver:
         headlines = driver.get_headlines()
     save_as_json(
         {
@@ -299,4 +308,4 @@ def scrape_headlines():
 
 
 if __name__ == "__main__":
-    scrape_headlines()
+    scrape_headlines(headless=False)
