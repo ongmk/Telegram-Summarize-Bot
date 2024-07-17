@@ -65,22 +65,22 @@ else:
 def get_user_prompt(headlines: list[Headline]):
     headlines_string = [f"{idx}: {h.title}" for idx, h in enumerate(headlines)]
     headlines_string = "\n".join(headlines_string)
-    return f"""<headlines>
+    return f"""<新聞標題>
 {headlines_string}
-</headlines>
-The above headlines are published by different sources, find the five most popular topics/keywords.
-For each topic/keyword, provide a short summary and the indices of the headlines that are related to it.
-Answer in the following format:
+</新聞標題>
+以上新聞標題由不同來源發布，請找出五個最熱門的話題/關鍵字。
+對於每個主題/關鍵字，請提供一個簡短的總結，並提供與之相關的新聞標題的索引。
+請按以下格式回答：
 [
-    "Topic/Keyword": {{
-        "summary": "A short summary of the topic/keyword.",
-        "headline_ids": [0,2,3,...],
+    "話題/關鍵字": {{
+        "總結": "關於話題/關鍵字的簡短總結。",
+        "標題索引": [0,2,3,...],
     }},
-    "Topic/Keyword": {{
-        "summary": "A short summary of the topic/keyword.",
-        "headline_ids": [5,10,11,...],
+    "話題/關鍵字": {{
+        "總結": "關於話題/關鍵字的簡短總結。",
+        "標題索引": [5,10,11,...],
     }},
-    ...
+    …
 ]
 """
 
