@@ -24,7 +24,7 @@ from helpers.llm_gateway_util import (
     append_cert_to_cacert,
     get_ssl_certificate,
 )
-from helpers.utils import datetime_to_str, save_as_json
+from helpers.utils import capture_code, datetime_to_str, save_as_json
 
 load_dotenv()
 
@@ -70,7 +70,7 @@ def get_user_prompt(headlines: list[Headline]):
 </新聞標題>
 以上新聞標題由不同來源發布，請找出五個最熱門的話題/關鍵字。
 對於每個主題/關鍵字，請提供一個簡短的總結，並提供與之相關的新聞標題的索引。
-請按以下格式回答：
+請按以下JSON格式回答：
 [
     "話題/關鍵字": {{
         "總結": "關於話題/關鍵字的簡短總結。",
@@ -92,14 +92,15 @@ def escape_markdown_v2(text):
 
 
 def enrich_response(response_content: str, headlines: list[Headline]):
-    response_json = json.loads(response_content.strip("```json\n").rstrip("```"))
+    response_content = capture_code(response_content, "json")
+    response_json = json.loads(response_content)
     rich_responses = []
     for topic, details in response_json.items():
         summary_chunks = []
         summary_chunks.append(
-            f"*{escape_markdown_v2(details['summary'])}*\n{escape_markdown_v2('-'*50)}\n"
+            f"*{escape_markdown_v2(details['總結'])}*\n{escape_markdown_v2('-'*50)}\n"
         )
-        topic_headlines = sorted([int(idx) for idx in details["headline_ids"]])[:5]
+        topic_headlines = sorted([int(idx) for idx in details["標題索引"]])[:5]
         for i, headline_idx in enumerate(topic_headlines):
             selected = headlines[headline_idx]
             escaped_title = escape_markdown_v2(selected.title)
