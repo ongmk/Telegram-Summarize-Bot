@@ -5,7 +5,8 @@ import os
 
 from dotenv import load_dotenv
 from logzero import logger
-from telegram import KeyboardButton, ReplyKeyboardMarkup, Update
+from telegram import ReplyKeyboardMarkup, Update
+from telegram._linkpreviewoptions import LinkPreviewOptions
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from core.config import Config
@@ -47,12 +48,16 @@ async def send_news_to_chat(
     for chunks in summaries:
         if by_chunks:
             text = chunks[0]
-            topic_message = await context.bot.send_message(
-                chat_id, text, parse_mode="MarkdownV2"
+            api_kwargs = dict(
+                parse_mode="MarkdownV2",
+                link_preview_options=LinkPreviewOptions(
+                    is_disabled=False, show_above_text=False, prefer_small_media=True
+                ),
             )
+            topic_message = await context.bot.send_message(chat_id, text, **api_kwargs)
             for chunk in chunks[1:]:
                 text += chunk
-                await topic_message.edit_text(text, parse_mode="MarkdownV2")
+                await topic_message.edit_text(text, **api_kwargs)
         else:
             text = "".join(chunks)
             await context.bot.send_message(chat_id, text, parse_mode="MarkdownV2")
