@@ -40,10 +40,10 @@ async def send_news_to_chat(
     summaries = summaries["summaries"]
 
     if not summaries:
-        warn("Cannot find headlines to summarize.")
+        warn("Cannot find headlines to summarize.", context)
         return None
     if last_sent > last_updated:
-        warn(f"No new news for {chat_id}. {last_sent=}, {last_updated=}")
+        warn(f"No new news for {chat_id}. {last_sent=}, {last_updated=}", context)
         return None
     for chunks in summaries:
         if by_chunks:

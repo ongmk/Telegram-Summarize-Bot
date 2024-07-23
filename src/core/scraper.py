@@ -283,6 +283,7 @@ class YahooNewsDriver(BaseDriver):
 def scrape_headlines(headless=True):
     with YahooNewsDriver(headless=headless) as driver:
         headlines = driver.get_headlines()
+    headlines = list(set(headlines))
     save_as_json(
         {
             "last_updated": datetime_to_str(datetime.now()),
