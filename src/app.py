@@ -147,7 +147,7 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.error(f"{type(context.error).__name__}: {context.error}")
 
 
-async def summarize_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def summarize_handler(context: ContextTypes.DEFAULT_TYPE):
     summarize()
     return None
 

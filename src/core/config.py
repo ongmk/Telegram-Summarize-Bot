@@ -13,4 +13,7 @@ class Config:
         time(7, 0, tzinfo=TIMEZONE),
         time(17, 45, tzinfo=TIMEZONE),
     ]
-    SUMMARIZE_SCHEDULE = [time(6, 45, tzinfo=TIMEZONE), time(17, 30, tzinfo=TIMEZONE)]
+    SUMMARIZE_SCHEDULE = [
+        time(6, 55, tzinfo=TIMEZONE),
+        time(17, 40, tzinfo=TIMEZONE),
+    ]
