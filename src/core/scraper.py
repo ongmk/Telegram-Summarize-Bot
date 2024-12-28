@@ -100,9 +100,6 @@ class BaseDriver:
 
         if headless:
             chrome_options.add_argument("--headless")
-        chrome_options.binary_location = (
-            "chromedriver//chromedriver-win64//chromedriver.exe"
-        )
 
         self.driver: webdriver.Chrome = webdriver.Chrome(
             options=chrome_options,
