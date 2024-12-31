@@ -12,7 +12,6 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 from core.config import Config
 from core.summarize import summarize
 from helpers.utils import (
-    datetime,
     datetime_to_str,
     load_json,
     save_as_json,

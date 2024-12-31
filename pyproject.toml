@@ -16,3 +16,6 @@ dependencies = [
     "tenacity>=9.0.0",
     "webdriver-manager>=4.0.2",
 ]
+
+[tool.uv]
+package = true

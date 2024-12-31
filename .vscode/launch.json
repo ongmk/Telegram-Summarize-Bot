@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "current file",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",
@@ -18,7 +18,7 @@
         },
         {
             "name": "Start Bot",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src",
